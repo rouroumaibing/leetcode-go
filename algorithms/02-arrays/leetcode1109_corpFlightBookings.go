@@ -1,41 +1,65 @@
 /*
-capacity 代表容量。超过车在路上当个点的最大容量，超过就失败，即上下车后（加减）人数不能超。
-maxtoi 代表当前组最远距离
+func corpFlightBookings(bookings [][]int, n int) []int {
+    answer := make([]int, n)
+    for _, v := range bookings {
+        answer = difference(answer, v[0]-1, v[1]-1, v[2])
+    }
+    return answer
+}
+
+func difference(bookinfo []int, i, j, val int) []int {
+    //构建等差数组
+    long := len(bookinfo)
+    diff := make([]int, long)
+    diff[0] = bookinfo[0]
+    for k:=0;k<long -1 ;k++{
+        diff[k+1] = bookinfo[k+1] - bookinfo[k]
+    }
+    //按要求增加数值差
+    diff[i] += val
+
+    if j+1 < long {
+        diff[j+1] -= val
+    }
+    //应用到传入的数组
+    answer := make([]int, long)
+    answer[0] = diff[0]
+    for k:=0;k<long -1 ;k++{
+        answer[k+1] = answer[k] + diff[k+1]
+    }
+    return answer
+}
 */
+func corpFlightBookings(bookings [][]int, n int) []int {
+	answer := make([]int, n)
 
-func carPooling(trips [][]int, capacity int) bool {
-	//找出汽车行驶最长距离
-	var maxtoi int
-	for _, v := range trips {
-		if v[2] > maxtoi {
-			maxtoi = v[2]
+	//初始化等差数组
+	//当前原始值均为0，等差数组均为0
+	/*
+	   long := n
+	   diff := make([]int, long)
+	   diff[0] = bookinfo[0]
+	   for k:=0;k<long -1 ;k++{
+	       diff[k+1] = bookinfo[k+1] - bookinfo[k]
+	   }
+	*/
+	diff := make([]int, n)
+
+	//按要求增加数值差
+	for _, v := range bookings {
+		//左边第一个需要加val
+		diff[v[0]-1] += v[2]
+		//右边需要在第右+1个减val
+		if v[1] < n {
+			diff[v[1]] -= v[2]
 		}
 	}
 
-	//构造等差数组，刚出站的车上没有人，均为0
-	diff := make([]int, maxtoi)
-	//等差数组加减值，人员上下车
-	for _, v := range trips {
-		//上车人数最大多少。左+最多上车人数
-		diff[v[1]] += v[0]
-		//到站即下车，人数最大多少。右-最多下车人数
-		if v[2] < maxtoi {
-			diff[v[2]] -= v[0]
-		}
-	}
-
-	//汽车全程最多人数数组
-	answer := make([]int, maxtoi)
+	//还原数组
 	answer[0] = diff[0]
-	for k := 0; k < maxtoi-1; k++ {
+	for k := 0; k < n-1; k++ {
 		answer[k+1] = answer[k] + diff[k+1]
 	}
-
-	for _, v := range answer {
-		//存在超过最大容量人数即false
-		if v > capacity {
-			return false
-		}
-	}
-	return true
+	return answer
 }
+

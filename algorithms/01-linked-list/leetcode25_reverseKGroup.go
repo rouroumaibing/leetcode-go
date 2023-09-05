@@ -5,35 +5,47 @@
  *     Next *ListNode
  * }
  */
- func mergeTwoLists(list1 *ListNode, list2 *ListNode) *ListNode {
-    dummy := &ListNode{}
-    //&{0 <nil>}
-    p := dummy
+func reverse(left *ListNode, right *ListNode) *ListNode {
+    pre, cur, nxt := &ListNode{}, left, left
+
+    for cur != right {
+        // 1 -> 2 -> 3 ->4 ->5
+        // pre = nil, cur = 1, nxt = 1, cur.Next= 2
+        nxt = cur.Next
+        //pre = nil, cur = 1, nxt = 2, cur.Next = 2
+        cur.Next = pre
+        /*  1  2->3->4 ->5
+            |
+           nil
+        pre = nil, cur = 1, nxt = 2, cur.Next = nil
+        */
+        pre = cur
+        //pre = 1 , cur = 1, nxt = 2, cur.Next = nil
+        cur = nxt
+        //pre = 1, cur = 2, nxt = 2, cur.Next = 3
+        // 1->nil  2->3->4 ->5
+        // 2->1->nil
+    }
+    return pre
+}
+
+func reverseKGroup(head *ListNode, k int) *ListNode {
+    if head == nil {
+        return nil
+    }
+    left, right := head, head
     
-    p1, p2 := list1, list2
-
-    // 将值较小的的节点接到 p 指针
-    for p1 != nil && p2 != nil {
-        if p1.Val > p2.Val {
-            p.Next = p2
-            p2 = p2.Next
-        }else {
-            p.Next = p1
-            p1 = p1.Next
+    //不足K个不需要反转，直接返回
+    for i := 0; i < k; i++ {
+        if right == nil {
+            return head
         }
-        //p指针不断前进
-        p = p.Next
+        right = right.Next 
     }
 
-    if p1 == nil{
-        p.Next = p2
-    }
+    newHead := reverse(left, right)
+    //递归后的值作为头，和后继链表连接起来
+    left.Next = reverseKGroup(right, k)
+    return newHead
 
-    if p2 == nil{
-        p.Next = p1
-    }
-    //dummy 包含初始化的阈值
-    //dummy = [0, ...]
-    //dummy.Next = [...]
-    return dummy.Next
 }
